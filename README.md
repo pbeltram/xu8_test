@@ -53,7 +53,7 @@ System becomes too busy with filesystem cache flushing writes and it starts to f
 **Mapping of DIO pins**
 
 Pins are on FMCXM105 J1 and J20 connectors and XU8+ST1 ANIOS IO_0 connector.
-32 DIO are 10x 1V8 Single ended and 12x differential 100Ohm terminated LVDS.
+32 DIO are 10x 1V8 Single ended and 22x differential 100Ohm terminated LVDS.
 
 **NOTE: Consult XU8 and FPMXM105 schematics before connecting your signals to connectors!**
 **Wrong connections or wrong voltages can permanently damage your HW!**
