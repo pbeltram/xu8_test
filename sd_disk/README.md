@@ -1,4 +1,6 @@
 **NOTE: Old content of SD disk will be overwritten so save its content before proceeding.**
+**NOTE: Password for `root` on device is `toor..`.**
+**NOTE: PMU FW is build with watchdog enabled.**
 
 ## 1. Create SD disk from pre-created dd image file (preferred)
 
@@ -12,7 +14,6 @@ Un-compress `./sdcard.7z`. Uncompressed dd image file is 1.6Gbyte so minimum 4GB
 7z x ./sdcard.7z
 ```
 
-NOTE: Password for `root` on device is `toor..`.
 Unmount any partitions mounted on SD disk that will be overwritten.
 
 **NOTE: Doble check which device is your SD disk to not damage your other disks.**
