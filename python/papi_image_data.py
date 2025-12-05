@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-"""Description of papi_check_data.py"""
-"""Read captured raw data and verify content."""
+"""Description of papi_image_data.py"""
+"""Get captured images."""
 
 import sys
 import numpy as np
+import cv2
 import getopt
 import matplotlib
 matplotlib.use('TKAgg')
@@ -170,32 +171,102 @@ def read_dataheader(a_fp):
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
+def unpack_mipi_raw(data: bytes, bpp: int) -> bytearray:
+    """
+    Unpacks MIPI RAW10 or RAW12 packed data into 16-bit pixels.
+    Returns: bytearray of unpacked 16-bit pixel values.
+    """
+    unpacked = bytearray()
+    
+    if bpp == 10:
+        # RAW10: 4 pixels = 5 bytes
+        if len(data) % 5 != 0:
+            raise ValueError("Invalid RAW10 data size.")
+        for i in range(0, len(data), 5):
+            b0, b1, b2, b3, b4 = data[i:i+5]
+            p0 = ((b0 << 2) | ((b4 >> 0) & 0x03))
+            p1 = ((b1 << 2) | ((b4 >> 2) & 0x03))
+            p2 = ((b2 << 2) | ((b4 >> 4) & 0x03))
+            p3 = ((b3 << 2) | ((b4 >> 6) & 0x03))
+            unpacked += struct.pack('<HHHH', p0, p1, p2, p3)
+
+    elif bpp == 12:
+        # RAW12: 2 pixels = 3 bytes
+        if len(data) % 3 != 0:
+            raise ValueError("Invalid RAW12 data size.")
+        for i in range(0, len(data), 3):
+            b0, b1, b2 = data[i:i+3]
+            #p0 = ((b0 << 4) | ((b2 >> 0) & 0x0F))
+            #p1 = ((b1 << 4) | ((b2 >> 4) & 0x0F))
+            p0 = b0 | ((b1 & 0x0F) << 8)
+            p1 = ((b1 >> 4) & 0x0F) | (b2 << 4)
+            unpacked += struct.pack('<HH', p0, p1)
+    else:
+        raise ValueError("Only 10bpp or 12bpp supported.")
+    
+    return unpacked
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+def unpack_raw12(byte_buffer, width, height):
+    """
+    Unpacks a custom 12-bit packed format.
+    Block size: 3 Bytes for 2 Pixels.
+    
+    Layout: Little Endian style
+    Byte0: P0[7:0]
+    Byte1: P0[11:8] (low nibble) | P1[3:0] (high nibble)
+    Byte2: P1[11:4]
+    """
+    total_pixels = width * height
+    expected_bytes = (total_pixels * 3) // 2
+    
+    if len(byte_buffer) != expected_bytes:
+        print(f"Error: Buffer size mismatch. Expected {expected_bytes} bytes, got {len(byte_buffer)}")
+        return None
+
+    # 1. Reshape into blocks of 3 bytes
+    raw_bytes = byte_buffer.reshape(-1, 3)
+
+    # 2. Extract columns and cast to uint16 to prevent overflow during shifts
+    b0 = raw_bytes[:, 0].astype(np.uint16)
+    b1 = raw_bytes[:, 1].astype(np.uint16)
+    b2 = raw_bytes[:, 2].astype(np.uint16)
+
+    # 3. Bitwise Reconstruction
+    # Pixel 0:
+    # Lower 8 bits = Byte0
+    # Upper 4 bits = Byte1 (Lower nibble)
+    pixel_0 = b0 | ((b1 & 0x0F) << 8)
+    # Pixel 1:
+    # Lower 4 bits = Byte1 (Upper nibble)
+    # Upper 8 bits = Byte2
+    pixel_1 = ((b1 >> 4) & 0x0F) | (b2 << 4)
+
+    # 4. Interleave back into a linear array
+    unpacked_data = np.empty(total_pixels, dtype=np.uint16)
+    unpacked_data[0::2] = pixel_0
+    unpacked_data[1::2] = pixel_1
+
+    return unpacked_data.reshape((height, width))
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
 def get_data(a_datas, a_len, a_atom_size, a_data_type):
 
     data_hdr, data_buff = a_datas
 
-    # nDataType-0 [32bit decimated index]
-    # nDataType-1 [16bit ADC_cha]
-    # nDataType-2 [16bit ADC_chb]
-    # nDataType-3 [16bit ADC_cha][16bit ADC_chb]
-    if (a_data_type == 0):
-        raw_data = np.frombuffer(data_buff, dtype=np.uint32)
-    elif (a_data_type == 1) or (a_data_type == 2) or (a_data_type == 3):
-        raw_data = np.frombuffer(data_buff, dtype=np.int16)
-    else:
-        print(f"ERROR: Unknown data_type{a_data_type}")
-        return None    
-    
-    nLength = a_len * (a_atom_size//np.dtype(raw_data.dtype).itemsize)
+    raw_data = np.frombuffer(data_buff, dtype=np.uint8)
+    unpacked_image = unpack_raw12(raw_data, 4056, 3040)
 
-    DataPoints = namedtuple("Data",
-                            "data_ts data_id queued len dtype pckt_missed cpu_loads ttl resend values")
+    ImageData = namedtuple("ImageData",
+                            "data_ts data_id queued len dtype pckt_missed cpu_loads ttl resend unpacked_image")
 
-    data_points = DataPoints(data_hdr.lDataTimestamp, data_hdr.nBlockId, data_hdr.nQueued, nLength, raw_data.dtype,
+    image_data = ImageData(data_hdr.lDataTimestamp, data_hdr.nBlockId, data_hdr.nQueued, data_hdr.nRawDataSize, a_data_type,
                              data_hdr.nPacketsMissed, data_hdr.nCPUsLoads.to_bytes(4, byteorder='little'), 
-                             data_hdr.nTimesToLeave, data_hdr.nTimesToResend, raw_data)
+                             data_hdr.nTimesToLeave, data_hdr.nTimesToResend, unpacked_image)
 
-    return data_points
+    return image_data
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -203,7 +274,7 @@ def get_data_line(a_data):
 
     DataLine = namedtuple("DataLine",
                           "data_ts data_idx queued pckt_missed "
-                          "cpu3_load cpu2_load cpu1_load cpu0_load ttl resend values")
+                          "cpu3_load cpu2_load cpu1_load cpu0_load ttl resend images")
 
     data_ts     = np.array([], dtype=np.uint64)
     data_idx    = np.array([], dtype=np.uint32)
@@ -215,7 +286,7 @@ def get_data_line(a_data):
     cpu0_load   = np.array([], dtype=np.uint8)
     ttl         = np.array([], dtype=np.uint32)
     resend      = np.array([], dtype=np.uint32)
-    values      = np.array([], dtype=a_data[0].dtype)
+    images      = []
      
     for idx in range(len(a_data)):
         data_ts     = np.append(data_ts, np.uint64(a_data[idx].data_ts))
@@ -228,11 +299,11 @@ def get_data_line(a_data):
         cpu0_load   = np.append(cpu0_load, np.uint8(a_data[idx].cpu_loads[0]))
         ttl         = np.append(ttl, np.uint32(a_data[idx].ttl))
         resend      = np.append(resend, np.uint32(a_data[idx].resend))
-        values      = np.append(values, a_data[idx].values)
+        images.append(a_data[idx].unpacked_image)
 
-    data_line = DataLine(data_ts, data_idx, queued, pckt_missed, cpu3_load, cpu2_load, cpu1_load, cpu0_load, ttl, resend, values)
+    data_line = DataLine(data_ts, data_idx, queued, pckt_missed, cpu3_load, cpu2_load, cpu1_load, cpu0_load, ttl, resend, images)
     
-    return data_line, a_data[idx].len
+    return data_line
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -305,10 +376,10 @@ def main(argv):
         data_lines.append(dl)
     
     # Flatten data.
-    data_line, nValuesSize = get_data_line(data_lines)
+    data_line = get_data_line(data_lines)
 
     print(f"INFO: NOF processing:{NOF_processing} out of:{len(datas)} captured data")
-    print(f"INFO: Values DataType:{nDataType} length of values:{nValuesSize}")
+    print(f"INFO: Image DataType:{nDataType}")
     #---------------------------------------------------------------------------
     
     #---------------------------------------------------------------------------
@@ -320,13 +391,6 @@ def main(argv):
     if (BlockId_equal == False):
         print(f"ERROR: BlockId NOT continues")
  
-    #Check for nDataType=0 [32bit decimated index]
-    if (nDataType == 0):
-        Samples_diff = np.ediff1d(data_line.values)
-        Samples_equal = np.all(Samples_diff == 1)
-        if (Samples_equal == False):
-            print(f"ERROR: DataType=0 32bit counter values NOT continues")
-    
     #Check for missed packets
     all_packets = np.all(data_line.pckt_missed == 0)
     if (all_packets == False):
@@ -350,32 +414,18 @@ def main(argv):
     print(f"INFO: Max queued:{max_queue}")
     #plot_sig("Queues", data_line.queued)
     
-    #TODO: histogram for ttl and resends. Each resend resets value of ttl.
-    # Initial values and formulas used for ttl: 
-    # m_rxworker_msec_delay = 1 mesc
-    # m_max_resend_wait = 500 msec.
-    # m_max_resend_repeat = 2
-    # m_rxworker_msec_delay = (std::max)(int(std::ceil(((1.0f/m_bps_rate)/4))), int(m_rxworker_msec_delay));
-    # ttl = set_times_to_leave((std::max)(int(std::round(float(m_max_resend_wait)/m_rxworker_msec_delay)), int(1)));
-    # resend = set_times_to_resend(m_max_resend_repeat);
-    # NOTE: For index in non_zero_blocks[0] both the ttl and resend should be zero.
-    
     dt_lTimestamp = np.ediff1d(data_line.data_ts)
     #plot_sig("dt_lTimestamp", dt_lTimestamp)
-    
-    # nDataType-0 [32bit decimated index]
-    # nDataType-1 [16bit ADC_cha]
-    # nDataType-2 [16bit ADC_chb]
-    # nDataType-3 [16bit ADC_cha][16bit ADC_chb]
-    if (nDataType == 3):
-        data_2d = data_line.values.reshape(-1, 2).T
-        plot_len = min(max_plot_len, len(data_2d[0,:]))
-        plot_sig("value", data_2d[0,:plot_len-1], data_2d[1,:plot_len-1])
-    else:
-        plot_len = min(max_plot_len, len(data_line.values))
-        plot_sig("value", data_line.values[:plot_len-1])
 
     #---------------------------------------------------------------------------
+    
+    raw16_img = data_line.images[0]
+
+    plt.figure("raw16 gray")
+    plt.imshow(raw16_img, cmap='gray')
+
+    plt.draw()
+    plt.show()
 
     return
 #-------------------------------------------------------------------------------
