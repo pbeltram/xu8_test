@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qtgui">
+    <file>styles/default.css</file>
+    <file>images/default.png</file>
+  </qresource>
+</RCC>

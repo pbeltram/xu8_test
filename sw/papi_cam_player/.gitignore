@@ -1,0 +1,32 @@
+#Edit .git/info/exclude
+*.[oa]
+*~
+
+#Eclipse
+.settings
+
+# project specific stuff
+Makefile
+/Debug/
+/Release/
+/src/ui_*.h
+/src/moc_*.cpp
+/src/moc_*.h
+/src/qrc_resources.cpp
+*.stash
+
+# Application specific ignores
+*.dat
+
+#
+# git files that we don't want to ignore even it they are dot-files
+#
+!.gitignore
+!.mailmap
+
+#
+# XSDK files we don't want to ignore
+#
+!.project
+!.cproject
+
