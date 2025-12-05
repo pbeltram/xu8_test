@@ -1,5 +1,7 @@
 ## Program options
 
+See NOTES at the end for xu8+ST1 RaspberryPi HQ (IMX477) test.
+
 **Program options for `papi_test`**
 
 ```
@@ -11,10 +13,10 @@
 "-m, --decimate n            Data decimation. (Optional, 0=leave HW default min=1.0 max=16.0)."
 "-l, --length n              Number of data atoms (Optional, default=250006, min=2054)."
 "-t, --mtu                   MTU (Optional, 0=leave HW default))."
-"-x, --mux n                 Data mux selector (Optional, 0=default) 0-Decimated counter, 3-DIO).
+"-x, --mux n                 Data mux selector (Optional, 0=default) Specific to application implementation.
 ```
 
-- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_test** (md5sum: 71b7398c3ff0cbe7940a9f360ce72b97)
+- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_test** (md5sum: 1cb2cb7fe062df445d3b05df6ffc81af)
 
 - On Windows 11 the binary application to use is **./win64/papi_test_64bit.exe** (md5sum: 073c1466a4d9593fab9f7aaab63e75c3)
 
@@ -54,12 +56,12 @@ To exit press `<CTRL>-C`.
 "-t, --mtu                   MTU (Optional, 0=leave HW default))."
 "-w, --wait                  Max number msec to wait for all packets (Optional, default=300 min=100))."
 "-r, --resend                Max number resend retries for missing packets (Optional, default=2 min=1))."
-"-n, --files                 Max number of 1Gbyte data files to write (Optional, default=5 min=1))."
-"-x, --mux n                 Data mux selector (Optional, 0=default) 0-Decimated counter, 3-DIO).
+"-n, --files                 Max number of 1Gbyte data files to write (Optional, default=3 min=1))."
+"-x, --mux n                 Data mux selector (Optional, 0=default) Specific to application implementation.
 "-o, --out dir               Write results to directory (<dir>/samples_vX.dat). (Optional, default is false. X=raw format version)."
 ```
 
-- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_recorder** (md5sum: f34b41f93cfb6dccbab6c995881b6863)
+- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_recorder** (md5sum: 45f1fc44f52918aecc652711540fbd34)
 
 - On Windows 11 the binary application to use is **./win64/papi_recorder_64bit.exe** (md5sum: c52fe012d20c5b976f49f60d6592a771)
 
@@ -97,3 +99,12 @@ To exit press `<CTRL>-C`.
 
 If not all UDP packets are received for a data block, an ERROR message will be logged on console but incomplete data buffer will still be written in file with a hole in missing packets.
 When capture is terminated statistic data are dumped on console. You could see `WARN: Resend data block not found.` messages, which means that resend request was repeated, but in the mean time all the missing data for block was received and data block was successfully completed (it was moved out of uncompleted block queue). Changing `--wait` parameter sometimes help to tune better the resend requests handling.
+
+**NOTES:**
+
+xu8_cam:
+Not all parameters are used for xu8+ST1 RaspberryPi HQ (IMX477) camera testing implementation.
+Decimation `--decimate` is ignored. FPS is determined by camera sensor.
+Length `--length` is ignored. Block data size is defined by camera sensor mode 4056x3040 12bpp.
+MUX selection will switch from image data `--mux=0` to test pattern data `--mux=1` (solid color), `--mux=2` (color bars),`--mux=3` (gray/color bars) and `--mux=4` (PN9).
+
