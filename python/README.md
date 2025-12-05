@@ -26,7 +26,7 @@ python.exe .\papi_check_data.py -i .\samples_v1.dat
 **papi_image_data**
 
 Script will read captured data and perform some checks on captured data.
-It will unpack captured raw12 image data to 16bit pixel data and display first captured image.
+It will unpack captured raw12 image data to 16bit pixel data and display first captured image in gray scale.
 Parameters:
 
 ```
@@ -39,4 +39,3 @@ Run python script on Ubuntu:
 ```
 ./papi_image_data.py -i ./samples_v1.dat
 ```
-
