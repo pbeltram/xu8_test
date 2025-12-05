@@ -2,5 +2,4 @@
 
 Directories:
 
-- `./papi_cam_player` source files and build project files for Qt GUI image viewer.
-
+- `./papi_cam_player` Source files and build project files for Qt GUI captured images viewer.

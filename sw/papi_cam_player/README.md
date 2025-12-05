@@ -1,7 +1,7 @@
+**papi_cam_player**
 
----
-
-Program will display images in captured data file. Format of data file is the same as for Python test scripts in top `/python/` directory.
+Program will display images from captured data file. Format of data file is the same as for Python test scripts in top `/python/` directory.
+Images are displayed as gray scale 16 bit where each RGGB pixel is transformed to gray scale pixel.
 Program is in source code, so fell free to modify it.
 
 **Program options**
@@ -14,17 +14,13 @@ Program is in source code, so fell free to modify it.
 ---
 
 On Linux:
+
 ```
-./Debug/papi_cam_viewer --input=./samples_v1.dat
-./Debug/papi_cam_viewer --input=./samples_v1_1.dat --verbose
+./Debug/papi_cam_player -i ./samples_v1.dat
+./Debug/papi_cam_player -i ./samples_v1_1.dat --verbose
 ```
----
 
 **Build**
 
 Build and test was done with Qt 5.15.
-It is Qt qmake based build. Make file is created via `qmake -o Makefile papi_cam_player.pro`.
-After that you start build with `make`. Result is in `./Debug/` directory.
-
----
-
+It is Qt qmake based build. Make file is created via `qmake -o Makefile papi_cam_player.pro`. After that you build binary with `make`. Result is in `./Debug/` directory.
