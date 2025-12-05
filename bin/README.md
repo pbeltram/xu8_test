@@ -106,13 +106,11 @@ To exit press `<CTRL>-C`.
 If not all UDP packets are received for a data block, an ERROR message will be logged on console but incomplete data buffer will still be written in file with a hole in missing packets.
 When capture is terminated statistic data are dumped on console. You could see `WARN: Resend data block not found.` messages, which means that resend request was repeated, but in the mean time all the missing data for block was received and data block was successfully completed (it was moved out of uncompleted block queue). Changing `--wait` parameter sometimes help to tune better the resend requests handling.
 
-
 Capture 50 data blocks (e.g. images from xu8_cam) from data source 2 (on xu8_cam this is test patter with color bars) and save them to local directory in file `./samples_v1.dat`.
 
 ```
 ./lnx64/papi_recorder --device=169.254.50.80 --host=169.254.50.23 --mux=2 --count=50 --out=.
 ```
-
 
 **Program options for `papi_cam_player`**
 
@@ -124,7 +122,7 @@ Capture 50 data blocks (e.g. images from xu8_cam) from data source 2 (on xu8_cam
 ---
 
 - On Ubuntu 20.04 the binary application to use is **./lnx64/papi_cam_player** (md5sum: 3e3adbe81832fe454aa5396a1cf8ac50)
-Program can be build from source files in `/sw/papi_cam_player` directory.
+  Program can be build from source files in `/sw/papi_cam_player` directory.
 
 ## Examples:
 
@@ -134,4 +132,3 @@ Program can be build from source files in `/sw/papi_cam_player` directory.
 ```
 
 ---
-
