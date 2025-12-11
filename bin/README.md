@@ -132,3 +132,31 @@ Capture 50 data blocks (e.g. images from xu8_cam) from data source 2 (on xu8_cam
 ```
 
 ---
+
+**Program options for `papi_cam_viewer`**
+
+```
+"-h, --host n                Host ip (Mandatory)."
+"-p, --print                 Print console messages. (Optional, default is off)."
+"-v, --verbose n             Dump n atoms of data content. (Optional, default is off)."
+"-w, --wait                  Max number msec to wait for all packets (Optional, default=300 min=100))."
+"-r, --resend                Max number resend retries for missing packets (Optional, default=2 min=1))."
+```
+
+---
+
+- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_cam_player** (md5sum: 6f2dfa780f572246290e88c8802b93fe)
+  Program can be build from source files in `/sw/papi_cam_player` directory.
+
+## Examples:
+
+Capture live image and display image in Qt GUI window. Zoom in/out with mouse wheel.
+
+```
+./lnx64/papi_cam_viewer --host=169.254.50.23
+```
+
+---
+
+
+
