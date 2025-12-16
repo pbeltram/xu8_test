@@ -2,9 +2,8 @@
 
 **NOTES:**
 
-- xu8_cam (xu8+ST1 RaspberryPi HQ (IMX477) test):
-  Not all parameters are used for xu8+ST1 RaspberryPi HQ (IMX477) camera testing implementation.
-  Decimation `--decimate` is ignored. FPS (data block rate) is determined by camera sensor.
+- xu8_cam and zyboz7_cam (RaspberryPi HQ (Sony IMX477) test):
+  Not all parameters are used for RaspberryPi HQ (IMX477) camera testing implementation.
   Length `--length` is ignored. Block data size is hardcoded to match camera sensor mode 4056x3040 12bpp.
   MUX selection will switch from image data `--mux=0` to test pattern data: `--mux=1` (solid color), `--mux=2` (color bars),`--mux=3` (gray/color bars) and `--mux=4` (PN9).
 
@@ -156,15 +155,44 @@ Decimate Sony IMX477 FPS (7.684) by fractional decimation 1.2, resulting in imag
 
 ## Examples:
 
-Capture live image and display image in Qt GUI window. Zoom in/out with mouse wheel.
+Capture live image from Ethernet connection and display image in Qt OpenGL GUI window. Zoom in/out with mouse wheel.
 IP address of xu8_cam is `169.254.50.80`, IP address of zyboz7_cam is `169.254.50.27`.
-Max Etherent bandwidth on Zynq-Z7 1Gb GEM (zyboz7_cam) is cca 950Mbps so use fractional decimation at least 1.2 to lower data bandwidth from camera.
+Max Ethernet bandwidth on Zynq-Z7 1Gb GEM (zyboz7_cam) is cca 950Mbps so use fractional decimation at least 1.2 to lower data bandwidth from camera.
 
 ```
 ./lnx64/papi_cam_viewer --host=169.254.50.23
 ```
 
 ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
