@@ -416,9 +416,14 @@ def main(argv):
     
     dt_lTimestamp = np.ediff1d(data_line.data_ts)
     #plot_sig("dt_lTimestamp", dt_lTimestamp)
-
-    #---------------------------------------------------------------------------
     
+    if nDataType == 4:
+        for idx in range(NOF_processing-1):
+            nz = np.nonzero(data_line.images[idx]-data_line.images[idx+1])
+            if len(nz[0]) != 0:
+                print(f"ERROR: Test pattern image diffs not equal.")
+            zsum = sum(sum(data_line.images[idx]-data_line.images[idx+1]))
+
     raw16_img = data_line.images[0]
 
     plt.figure("raw16 gray")
