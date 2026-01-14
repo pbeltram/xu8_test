@@ -3,6 +3,7 @@
 - xu8+ST1 10Gb Ethernet wire speed test [xu8_rec README](./README_rec.md).
 - xu8+ST1 RaspberryPi HQ (IMX477) camera test [xu8_cam README](./README_cam.md).
 - ZyboZ7-20 RaspberryPi HQ (IMX477) camera test [zyboz7_cam README](./README_zyboz7_cam.md).
+- xu8+ST1 10Gb Ethernet wire speed test with Analog FMCOMMS3 board (AD9361) [xu8_fmcomms3 README](./README_fmcomms3.md).
 
 **Directories:**
 

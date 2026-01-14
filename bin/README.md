@@ -6,6 +6,9 @@
   Not all parameters are used for RaspberryPi HQ (IMX477) camera testing implementation.
   Length `--length` is ignored. Block data size is hardcoded to match camera sensor mode 4056x3040 12bpp.
   MUX selection will switch from image data `--mux=0` to test pattern data: `--mux=1` (solid color), `--mux=2` (color bars),`--mux=3` (gray/color bars) and `--mux=4` (PN9).
+- xu8_fmcomms3:
+  
+  Length `--length`, Data mux `--mux`, Decimate `--decimate` parameters are not used and ignored.
 
 **Program options for `papi_test`**
 
@@ -19,9 +22,10 @@
 "-l, --length n              Number of data atoms (Optional, default=250006, min=2054)."
 "-t, --mtu                   MTU (Optional, 0=leave HW default))."
 "-x, --mux n                 Data mux selector (Optional, 0=default) Specific to application implementation.
+"-s, --strmask n             Stream bit mask. (Optional, Default=1)."
 ```
 
-- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_test** (md5sum: 1cb2cb7fe062df445d3b05df6ffc81af)
+- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_test** (md5sum: 5bf9b17778c1a67234bfb39bfa209547)
 
 - On Windows 11 the binary application to use is **./win64/papi_test_64bit.exe** (md5sum: 073c1466a4d9593fab9f7aaab63e75c3)
 
@@ -48,6 +52,15 @@ To exit press `<CTRL>-C`.
 ./lnx64/papi_test --device=169.254.50.80 --host=169.254.50.23 --decimate=1.1 --count=0 --length=2000000 --mux=3
 ```
 
+Continuous capture of 3 data streams (stream 0, 1 and 2) from xu8_fmcomms3. For AD9361 sampling colck of 61.44MSPS it will results in 9.830Gbits/sec).
+Use Analog IIO oscilloscope application to configure AD9361. Instructions are available [here](https://wiki.analog.com/resources/tools-software/linux-software/iio_oscilloscope).
+Note:
+Analog IIO oscilloscope for xu8_fmcomms3 is used only to configure AD9361 settings. There is no IIO data acquisition support on xu8_fmcomms3, data acquisition is done via proprietary NPAPI protocol interface.
+
+```
+./lnx64/papi_test --device=169.254.50.80 --host=169.254.50.23 --count=0 --strmask=7
+```
+
 **Program options for `papi_recorder`**
 
 ```
@@ -63,10 +76,11 @@ To exit press `<CTRL>-C`.
 "-r, --resend                Max number resend retries for missing packets (Optional, default=2 min=1))."
 "-n, --files                 Max number of 1Gbyte data files to write (Optional, default=3 min=1))."
 "-x, --mux n                 Data mux selector (Optional, 0=default) Specific to application implementation.
+"-s, --stream n              Stream number. (Optional, Default=0)."
 "-o, --out dir               Write results to directory (<dir>/samples_vX.dat). (Optional, default is false. X=raw format version)."
 ```
 
-- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_recorder** (md5sum: 45f1fc44f52918aecc652711540fbd34)
+- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_recorder** (md5sum: aa5d474bcadfdab657a0daf00fe20331)
 
 - On Windows 11 the binary application to use is **./win64/papi_recorder_64bit.exe** (md5sum: c52fe012d20c5b976f49f60d6592a771)
 
@@ -85,7 +99,7 @@ Capture 100 buffers of 2000000 atoms of counter data and save data in file. Wait
 ./lnx64/papi_recorder --device=169.254.50.80 --host=169.254.50.23 --length=2000000 --decimate=1.1 --count=100 --mux=0  --wait=500 --out=.
 ```
 
-Continuouse capture of DIO data, write 5 1Gbyte files of captured DIO data at 284.1 MSPS.  Wait max two times of 500 msec for missed UDP packets.
+Continuous capture of DIO data, write 5 1Gbyte files of captured DIO data at 284.1 MSPS.  Wait max two times of 500 msec for missed UDP packets.
 For missing UDP packets you will output messages `RESEND req:` on serial console. 
 
 ```
@@ -94,7 +108,7 @@ For missing UDP packets you will output messages `RESEND req:` on serial console
 
 To exit press `<CTRL>-C`.
 
-Continuouse capture 32 DIO data at 284.1 MSPS (9.5Gbits/sec).
+Continuous capture 32 DIO data at 284.1 MSPS (9.5Gbits/sec).
 
 ```
 ./lnx64/papi_recorder --device=169.254.50.80 --host=169.254.50.23 --length=2000000 --decimate=1.1 --mux=3 --count=0 --wait=500
@@ -116,6 +130,15 @@ Decimate Sony IMX477 FPS (7.684) by fractional decimation 1.2, resulting in imag
 
 ```
 ./lnx64/papi_recorder --device=169.254.50.27 --host=169.254.50.23 --mux=4 --count=50 --decimate=1.2 --out=.
+```
+
+Capture and write 10 blocks of 64k point FFT from xu8_fmcomms3. Each block contains 3x64k points of FFT IQ data.
+Stream=0 is RX1/RX2 IQ data.
+Stream=1 64k point FFT from RX1, each block contains 3x64k IQ FFT points.
+Stream=2 2k point FFT from RX2, each data block contains 128x2k IQ FFT points.
+
+```
+./lnx64/papi_recorder --device=169.254.50.80 --host=169.254.50.23 --count=10 --stream=1 --out=.
 ```
 
 **Program options for `papi_cam_player`**
@@ -164,35 +187,3 @@ Max Ethernet bandwidth on Zynq-Z7 1Gb GEM (zyboz7_cam) is cca 950Mbps so use fra
 ```
 
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
