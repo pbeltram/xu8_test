@@ -78,9 +78,10 @@ Analog IIO oscilloscope for xu8_fmcomms3 is used only to configure AD9361 settin
 "-x, --mux n                 Data mux selector (Optional, 0=default) Specific to application implementation.
 "-s, --stream n              Stream number. (Optional, Default=0)."
 "-o, --out dir               Write results to directory (<dir>/samples_vX.dat). (Optional, default is false. X=raw format version)."
+"-g, --chno n                Stream number to write data, used only with --out option. (Optional, Default=0)."
 ```
 
-- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_recorder** (md5sum: aa5d474bcadfdab657a0daf00fe20331)
+- On Ubuntu 20.04 the binary application to use is **./lnx64/papi_recorder** (md5sum: f69caf65884d5556eb3505792058f06f)
 
 - On Windows 11 the binary application to use is **./win64/papi_recorder_64bit.exe** (md5sum: c52fe012d20c5b976f49f60d6592a771)
 
@@ -187,3 +188,10 @@ Max Ethernet bandwidth on Zynq-Z7 1Gb GEM (zyboz7_cam) is cca 950Mbps so use fra
 ```
 
 ---
+
+**SDR++ PAPI SDR source module**
+
+- For Ubuntu 20.04 the binary is **./lnx64/libpapi_sdrpp_source.so** (md5sum: 3239ee4d30a87aec6086e3c163beab27)
+
+---
+
