@@ -1,0 +1,3 @@
+[submodule "sw/SDRPlusPlus"]
+	path = sw/SDRPlusPlus
+	url = git@github.com:pbeltram/SDRPlusPlus.git
