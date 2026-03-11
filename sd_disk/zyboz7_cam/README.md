@@ -1,6 +1,5 @@
 **NOTE: Old content of SD disk will be overwritten so save its content before proceeding.**
 **NOTE: Password for `root` on device is `toor..`.**
-**NOTE: PMU FW is build with watchdog enabled.**
 
 ## 1. Create SD disk from pre-created dd image file (preferred)
 
