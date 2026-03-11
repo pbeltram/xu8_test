@@ -8,3 +8,5 @@ SDR++ (tag 1.0.4) is running on LX Ubuntu 20.04 PC with NVIDIA Quadro K4000. I h
 
 With this setup I can continuously stream 12bit IQ data over GEM 1Gbps Ethernet link at 40 MSPS with no(!) data lost. Resulting Ethernet link BW 40*3*8=960Mbps is very close to theoretical 1Gbps wire speed. 
 
+You will have to edit SDR++ config file `./sw/SDRPlusPlus/root_dev_Release/papi_sdr_source_config.json` and change "IP" to point to your PicoZED IP address (or hostname) and "netiface" to your PC Ethernet interface connected to PicoZED network.
+
